@@ -75,6 +75,14 @@ public class FileRepository {
         }
         return files;
     }
+    public List<File> getAllWithContent(){
+        List<File> allFiles = getAll();
+        for(int i=0;i<allFiles.size();i++){
+            File file = allFiles.get(i);
+            file.setContent(getFileContent(i));
+        }
+        return allFiles;
+    }
     public List<File> getAllByDepartment(String department){
         List<File> files = new ArrayList<>();
         for (File file : this.getAll()){
@@ -85,7 +93,13 @@ public class FileRepository {
         return files;
     }
 
-    
+    public List<File> stringsIntoFiles(List<String> strings){
+        List<File> files = new ArrayList<>();
+        for (String string:strings){
+            files.add(new File(string));
+        }
+        return files;
+    }
     public File findByName(String name, String department){
         List<File> files = getAll();
         for (File file : files){

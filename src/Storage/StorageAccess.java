@@ -38,7 +38,7 @@ public class StorageAccess {
 
         } catch (Exception e){
             System.out.println(e.getMessage());
-            return "StorageAccess: Couln't Read File";
+            return "";
         }
     }
     public List<String> getAll(){
