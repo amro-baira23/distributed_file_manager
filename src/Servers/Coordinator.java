@@ -41,10 +41,14 @@ public class Coordinator implements CoordinatorI{
         );
     }
 
-    private List<NodeI> locateNodes() throws Exception{
+    private List<NodeI> locateNodes() {
         List<NodeI> nodes = new ArrayList<>();
         for (String url : getNodesUrls()){
-            nodes.add((NodeI) Naming.lookup(url));
+            try{
+                nodes.add((NodeI) Naming.lookup(url));
+            } catch(Exception e){
+                System.out.println(e);
+            }
         }
         return nodes;
     }
@@ -55,9 +59,19 @@ public class Coordinator implements CoordinatorI{
             new Node(5003)
         );
     }
-    private NodeI selectNode(){
+    private NodeI selectNode() throws RemoteException{
         node_index++;
-        return nodes.get(node_index%nodes.size());
+        if (nodes.size()==0){
+            throw new RemoteException("no nodes alive");
+        }
+        NodeI node = nodes.get(node_index%nodes.size());
+        try{
+            node.isAlive();
+        }  catch(Exception e){
+            nodes.remove(node_index);
+            return selectNode();
+        }
+        return node;
     }
 
     public String login(String username, String password) throws RemoteException{

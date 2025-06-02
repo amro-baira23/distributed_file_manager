@@ -8,8 +8,12 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import Entities.File;
 import Repositories.FileRepository;
@@ -25,6 +29,7 @@ public class Node implements NodeI{
         this.port = port;
         this.name = "node_" + port;
         fileRepository = new FileRepository(new StorageAccess(this.getNodePath() + "files.bin"));
+        setSchedule();
     }
 
     private String getNodePath(){
@@ -38,7 +43,25 @@ public class Node implements NodeI{
         fileRepository.create(name, department, content);
     }
 
+    private void setSchedule(){
+        Calendar midnight = Calendar.getInstance();
+        midnight.set(Calendar.HOUR_OF_DAY, 0);
+        midnight.set(Calendar.MINUTE, 0);
+        midnight.set(Calendar.SECOND, 0);
+        midnight.set(Calendar.MILLISECOND, 0);
+        
+        if (midnight.before(Calendar.getInstance())) {
+            midnight.add(Calendar.DATE, 1);
+        }
 
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("lkdj");
+            }
+        }, midnight.getTime(), TimeUnit.HOURS.toMillis(24)); 
+    }
     public String getFileContent(int index){
         return fileRepository.getFileContent(index);
     }
@@ -125,7 +148,9 @@ public class Node implements NodeI{
         syncManager.feedFiles(fileRepository.stringsIntoFiles(received));
         syncNodeData(syncManager);
     }
-
+    public void isAlive(){
+        
+    }
     public static void main(String[] args){
         int port;
         Scanner sc = new Scanner(System.in);

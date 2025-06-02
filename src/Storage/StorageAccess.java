@@ -1,6 +1,9 @@
 package Storage;
 
 
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,12 +27,30 @@ public class StorageAccess {
 
     public void store(byte[] data) throws Exception{
         Files.createDirectories(path.getParent());
-        Files.write(path,data, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        // Files.write(path,data, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+         try (FileChannel channel = FileChannel.open(path, 
+                StandardOpenOption.CREATE, 
+                StandardOpenOption.WRITE,
+                StandardOpenOption.APPEND);
+             FileLock lock = channel.lock()) {
+            
+            channel.write(ByteBuffer.wrap(data));
+            channel.force(true); // Ensure data is flushed to disk
+        }
     }
 
     public void write(byte[] data) throws Exception{
         Files.createDirectories(path.getParent());
-        Files.write(path,data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        // Files.write(path,data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+         try (FileChannel channel = FileChannel.open(path, 
+                StandardOpenOption.CREATE, 
+                StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING);
+             FileLock lock = channel.lock()) {
+            
+            channel.write(ByteBuffer.wrap(data));
+            channel.force(true); // Ensure data is flushed to disk
+        }
     }
 
     public String getFileContent(){

@@ -10,6 +10,8 @@ public interface NodeI extends Remote {
 
     public List<File> listFiles() throws RemoteException;
 
+    public void isAlive() throws RemoteException;
+
     public void createFile(String name,String department, String content) throws RemoteException;
 
 
